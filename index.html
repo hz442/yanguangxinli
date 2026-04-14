@@ -54,27 +54,18 @@
     <script>
         const API_BASE = '/.netlify/functions';
 
-        // 提交表单（带成功/失败提示）
+        // 提交表单
         const form = document.getElementById('myForm');
         const msg = document.getElementById('msg');
 
         form.onsubmit = async function(e) {
             e.preventDefault();
 
-            const contact = document.getElementById('contact').value.trim();
-            const content = document.getElementById('content').value.trim();
-
-            if (!contact || !content) {
-                msg.innerText = "❌ 提交失败：联系方式和内容不能为空";
-                msg.className = "error";
-                return;
-            }
-
             const data = {
                 name: document.getElementById('name').value || "匿名",
                 class: document.getElementById('class').value || "未填写",
-                contact: contact,
-                content: content,
+                contact: document.getElementById('contact').value.trim(),
+                content: document.getElementById('content').value.trim(),
                 mood: document.getElementById('mood').value
             };
 
@@ -94,8 +85,8 @@
                     msg.innerText = "❌ 提交失败，请重试";
                     msg.className = "error";
                 }
-            } catch (error) {
-                msg.innerText = "❌ 网络错误，请检查网络后重试";
+            } catch (err) {
+                msg.innerText = "❌ 网络错误，请检查网络";
                 msg.className = "error";
             }
         };
@@ -125,15 +116,15 @@
                     html += `
                         <div style="margin:10px 0;padding:10px;border-bottom:1px solid #ddd">
                             <p><strong>提交时间：</strong>${i.time}</p>
-                            <p><strong>你的留言：</strong>${i.content}</p>
-                            <p><strong>管理员回复：</strong>${i.reply || "暂未回复"}</p>
+                            <p><strong>内容：</strong>${i.content}</p>
+                            <p><strong>回复：</strong>${i.reply || "暂未回复"}</p>
                         </div>
                     `;
                 });
 
                 res.innerHTML = html;
-            } catch (error) {
-                res.innerText = "查询失败，请重试";
+            } catch (err) {
+                res.innerText = "查询失败";
             }
         }
     </script>
