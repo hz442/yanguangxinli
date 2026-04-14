@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌞 阳光心理驿站</title>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Noto Sans SC', sans-serif;
+        }
+        body {
+            background: linear-gradient(135deg, #669bee 0%, #84f0c4 100%);
+            min-height: 100vh;
+            color: #333;
+            padding: 20px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin: 30px 0;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.95;
+        }
+        .form-card {
+            background: white;
+            border-radius: 16px;
+            padding: 35px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        .form-card:hover {
+            transform: translateY(-3px);
+        }
+        .form-card h2 {
+            color: #4a7bd6;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 1.6rem;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 1rem;
+            color: #444;
+        }
+        input, textarea, select {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #4a90e2;
+            box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+        }
+        textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        .required {
+            color: #ff4757;
+            font-weight: bold;
+        }
+        .submit-btn {
+            background: linear-gradient(90deg, #4a90e2, #5ce0b4);
+            color: white;
+            border: none;
+            padding: 14px 20px;
+            border-radius: 8px;
+            width: 100%;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
+        }
+        .submit-btn:hover {
+            opacity: 0.9;
+        }
+        .reply-result {
+            margin-top: 20px;
+            padding: 20px;
+            background: #f7f9fc;
+            border-radius: 8px;
+            line-height: 1.6;
+        }
+        .reply-item {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .reply-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 50px;
+            color: white;
+            opacity: 0.9;
+            font-size: 0.95rem;
+        }
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .form-card {
+                padding: 25px 20px;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>🌞 阳光心理驿站</h1>
+            <p>用心倾听 · 用爱守护 · 陪伴成长</p>
+        </header>
+
+        <main>
+            <!-- 提交表单（Netlify Forms原生支持） -->
+            <div class="form-card">
+                <h2>心理信息提交</h2>
+                <form name="mental-form" method="POST" data-netlify="true" netlify-honeypot="bot-field">
+                    <input type="hidden" name="form-name" value="mental-form">
+                    <p class="hidden" style="display: none;">
+                        <label>Don’t fill this out if you’re human: <input name="bot-field"></label>
+                    </p>
+                    
+                    <div class="form-group">
+                        <label>姓名（选填，可匿名）</label>
+                        <input type="text" name="name" placeholder="可匿名提交，保护隐私">
+                    </div>
+                    <div class="form-group">
+                        <label>班级（选填）</label>
+                        <input type="text" name="class" placeholder="例如：高三1班">
+                    </div>
+                    <div class="form-group">
+                        <label>联系方式（用于接收回复）<span class="required">*</span></label>
+                        <input type="text" name="contact" placeholder="手机号/QQ/微信" required>
+                    </div>
+                    <div class="form-group">
+                        <label>心理状态描述 <span class="required">*</span></label>
+                        <textarea name="content" placeholder="请描述你的心理状态、困扰或需求..." required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>当前情绪状态</label>
+                        <select name="mood">
+                            <option value="平静">平静</option>
+                            <option value="开心">开心</option>
+                            <option value="焦虑">焦虑</option>
+                            <option value="低落">低落</option>
+                            <option value="烦躁">烦躁</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="submit-btn">提交信息</button>
+                </form>
+            </div>
+
+            <!-- 查看回复 -->
+            <div class="form-card">
+                <h2>查看管理员回复</h2>
+                <div class="form-group">
+                    <input type="text" id="checkContact" placeholder="输入你提交的联系方式查询回复">
+                </div>
+                <button class="submit-btn" onclick="checkReply()">查询回复</button>
+                <div id="replyResult" class="reply-result"></div>
+            </div>
+        </main>
+
+        <footer class="footer">
+            <p>© 2025 阳光心理驿站 | 守护学生心理健康</p>
+        </footer>
+    </div>
+
+    <script>
+        // 🔐 加密配置（部署前修改！）
+        const SECRET_KEY = "zh2026@safekey";
+        const ADMIN_PASSWORD = "admin@123";
+
+        // 加密函数
+        function encryptData(data) {
+            return CryptoJS.AES.encrypt(JSON.stringify(data), SECRET_KEY).toString();
+        }
+
+        // 解密函数
+        function decryptData(encrypted) {
+            try {
+                const bytes = CryptoJS.AES.decrypt(encrypted, SECRET_KEY);
+                return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // 表单提交（Netlify Forms原生处理，无网络错误）
+        document.querySelector('form[name="mental-form"]').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            
+            // 加密数据后提交
+            const data = {
+                name: formData.get('name') || '匿名',
+                class: formData.get('class') || '未填写',
+                contact: formData.get('contact'),
+                content: formData.get('content'),
+                mood: formData.get('mood'),
+                time: new Date().toLocaleString('zh-CN'),
+                id: Date.now().toString()
+            };
+
+            // 加密后存入隐藏字段
+            const encrypted = encryptData(data);
+            formData.set('encryptedData', encrypted);
+            
+            // 提交到Netlify Forms
+            fetch('/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams(formData).toString()
+            }).then(res => {
+                if (res.ok) {
+                    alert('✅ 提交成功！管理员会尽快回复你');
+                    form.reset();
+                } else {
+                    alert('❌ 提交失败，请稍后重试');
+                }
+            }).catch(err => {
+                alert('❌ 网络错误，请检查网络后重试');
+            });
+        });
+
+        // 查询回复（通过Netlify Forms API）
+        async function checkReply() {
+            const contact = document.getElementById('checkContact').value.trim();
+            if (!contact) {
+                alert('请输入你提交的联系方式');
+                return;
+            }
+
+            document.getElementById('replyResult').innerHTML = '<p>🔍 查询中...</p>';
+
+            try {
+                // 替换为你的Netlify Forms API Token和Site ID
+                const API_TOKEN = 'nfp_UBT7CBnKdpPEN1dqDknHDUTpZECSfU5g1a8a';
+                const SITE_ID = 'iridescent-syrniki-f3160a';
+                const res = await fetch(`https://api.netlify.com/api/v1/sites/${SITE_ID}/forms/mental-form/submissions`, {
+                    headers: { Authorization: `Bearer ${API_TOKEN}` }
+                });
+
+                const submissions = await res.json();
+                const userSubmissions = submissions.filter(sub => {
+                    const decrypted = decryptData(sub.data.encryptedData);
+                    return decrypted && decrypted.contact === contact;
+                });
+
+                if (userSubmissions.length === 0) {
+                    document.getElementById('replyResult').innerHTML = '<p>ℹ️ 未找到你的提交记录</p>';
+                    return;
+                }
+
+                let html = '';
+                userSubmissions.forEach(sub => {
+                    const decrypted = decryptData(sub.data.encryptedData);
+                    html += `
+                        <div class="reply-item">
+                            <p><strong>提交时间：</strong>${decrypted.time}</p>
+                            <p><strong>你的留言：</strong>${decrypted.content}</p>
+                            <p><strong>管理员回复：</strong>${sub.data.reply || '⏳ 暂未回复，请耐心等待'}</p>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('replyResult').innerHTML = html;
+            } catch (error) {
+                document.getElementById('replyResult').innerHTML = '<p>❌ 查询失败，请稍后重试</p>';
+            }
+        }
+    </script>
+</body>
+</html>
