@@ -1,267 +1,80 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🔒 管理员后台 - 阳光心理驿站</title>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.2.0/crypto-js.min.js"></script>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Noto Sans SC', sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #669bee 0%, #84f0c4 100%);
-            min-height: 100vh;
-            color: #333;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        .header {
-            text-align: center;
-            color: white;
-            margin: 30px 0;
-        }
-        .header h1 {
-            font-size: 2.2rem;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .login-card, .admin-content {
-            background: white;
-            border-radius: 16px;
-            padding: 35px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        .login-card h2, .admin-header h2 {
-            color: #4a7bd6;
-            margin-bottom: 25px;
-            text-align: center;
-        }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-        }
-        input, textarea {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 1rem;
-        }
-        input:focus, textarea:focus {
-            outline: none;
-            border-color: #4a90e2;
-        }
-        .submit-btn {
-            background: linear-gradient(90deg, #4a90e2, #5ce0b4);
-            color: white;
-            border: none;
-            padding: 14px 20px;
-            border-radius: 8px;
-            width: 100%;
-            font-size: 1.1rem;
-            font-weight: 500;
-            cursor: pointer;
-            transition: opacity 0.3s ease;
-        }
-        .submit-btn:hover {
-            opacity: 0.9;
-        }
-        .logout-btn {
-            background: #ff4757;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.95rem;
-        }
-        .admin-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-        .data-item {
-            padding: 20px;
-            border-left: 4px solid #4a90e2;
-            background: #f9f9f9;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        .data-meta {
-            color: #666;
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
-        .reply-box {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid #e0e0e0;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 50px;
-            color: white;
-            opacity: 0.9;
-        }
-        @media (max-width: 768px) {
-            .header h1 {
-                font-size: 1.8rem;
-            }
-            .login-card, .admin-content {
-                padding: 25px 20px;
-            }
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>管理员后台</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:Arial}
+body{background:linear-gradient(135deg,#669bee 0%,#84f0c4 100%);padding:20px}
+.container{max-width:900px;margin:auto}
+.card{background:white;padding:20px;border-radius:15px;margin:10px 0}
+h1{color:white;text-align:center;margin:20px 0}
+input,textarea{width:100%;padding:12px;margin:8px 0;border:1px solid #ddd;border-radius:8px}
+button{background:#2d6a4f;color:white;border:none;padding:14px;width:100%;border-radius:10px;margin-top:10px}
+.item{border-left:4px solid #4a90e2;padding:15px;background:#f9f9f9;margin-bottom:15px;border-radius:8px}
+</style>
 </head>
 <body>
-    <div class="container">
-        <header class="header">
-            <h1>🔒 管理员后台</h1>
-        </header>
+<div class="container">
+<h1>🔒 管理员后台</h1>
 
-        <!-- 登录界面 -->
-        <div class="login-card" id="loginCard">
-            <h2>管理员登录</h2>
-            <form id="loginForm">
-                <div class="form-group">
-                    <label>管理员密码</label>
-                    <input type="password" id="adminPwd" placeholder="输入管理员密码" required>
-                </div>
-                <button type="submit" class="submit-btn">登录</button>
-            </form>
-        </div>
+<div class="card">
+<input type="password" id="pwd" placeholder="输入管理员密码">
+<button onclick="login()">登录</button>
+</div>
 
-        <!-- 管理界面 -->
-        <div class="admin-content" id="adminContent" style="display: none;">
-            <div class="admin-header">
-                <h2>学生提交列表</h2>
-                <button class="logout-btn" onclick="logout()">退出登录</button>
-            </div>
-            <div id="dataList"></div>
-        </div>
+<div id="adminArea" style="display:none">
+<div id="list"></div>
+</div>
+</div>
 
-        <footer class="footer">
-            <p>© 2025 阳光心理驿站 | 管理员专用</p>
-        </footer>
-    </div>
+<script>
+const STORAGE_KEY = "mental_submissions";
+const PWD = "123456";
 
-    <script>
-        // 🔐 必须和index.html完全一致！
-        const SECRET_KEY = "zh2026@safekey";
-        const ADMIN_PASSWORD = "admin@123";
-        // 替换为你的Netlify API Token和Site ID
-        const API_TOKEN = "nfp_UBT7CBnKdpPEN1dqDknHDUTpZECSfU5g1a8a";
-        const SITE_ID = "3fc92f45-0d87-4bee-a241-8272e38f6984";
+function getList() {
+return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
+}
 
-        // 解密函数
-        function decryptData(encrypted) {
-            try {
-                const bytes = CryptoJS.AES.decrypt(encrypted, SECRET_KEY);
-                return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
-            } catch (e) {
-                return null;
-            }
-        }
+function saveList(list) {
+localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
+}
 
-        // 登录验证
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const pwd = document.getElementById('adminPwd').value;
-            if (pwd === ADMIN_PASSWORD) {
-                document.getElementById('loginCard').style.display = 'none';
-                document.getElementById('adminContent').style.display = 'block';
-                loadData();
-            } else {
-                alert('❌ 密码错误，请重试');
-            }
-        });
+function login() {
+if (document.getElementById("pwd").value === PWD) {
+alert("登录成功");
+document.getElementById("adminArea").style.display = "block";
+loadList();
+} else {
+alert("密码错误");
+}
+}
 
-        // 加载数据
-        async function loadData() {
-            const listEl = document.getElementById('dataList');
-            listEl.innerHTML = '<p>🔄 加载中...</p>';
+function loadList() {
+const list = getList();
+const html = list.map((item, i) => `
+<div class="item">
+<p><strong>姓名：</strong>${item.name}</p>
+<p><strong>班级：</strong>${item.class}</p>
+<p><strong>联系方式：</strong>${item.contact}</p>
+<p><strong>内容：</strong>${item.content}</p>
+<p><strong>情绪：</strong>${item.mood}</p>
+<p><strong>时间：</strong>${item.time}</p>
+<textarea placeholder="输入回复" id="reply${i}">${item.reply || ''}</textarea>
+<button onclick="sendReply(${i})">保存回复</button>
+</div>
+`).join('');
+document.getElementById("list").innerHTML = html;
+}
 
-            try {
-                const res = await fetch(`https://api.netlify.com/api/v1/sites/${SITE_ID}/forms/mental-form/submissions`, {
-                    headers: { Authorization: `Bearer ${API_TOKEN}` }
-                });
-
-                const submissions = await res.json();
-                if (submissions.length === 0) {
-                    listEl.innerHTML = '<p>ℹ️ 暂无学生提交数据</p>';
-                    return;
-                }
-
-                let html = '';
-                submissions.forEach(sub => {
-                    const decrypted = decryptData(sub.data.encryptedData);
-                    if (!decrypted) return;
-
-                    html += `
-                        <div class="data-item">
-                            <h3>${decrypted.name} | ${decrypted.class}</h3>
-                            <div class="data-meta">
-                                联系方式：${decrypted.contact} | 提交时间：${decrypted.time}
-                            </div>
-                            <p><strong>情绪状态：</strong>${decrypted.mood}</p>
-                            <p><strong>留言内容：</strong>${decrypted.content}</p>
-                            <div class="reply-box">
-                                <label><strong>管理员回复：</strong></label>
-                                <textarea id="reply-${sub.id}" rows="3" placeholder="输入回复内容...">${sub.data.reply || ''}</textarea>
-                                <button class="submit-btn" style="margin-top:10px" onclick="sendReply('${sub.id}')">发送回复</button>
-                            </div>
-                        </div>
-                    `;
-                });
-
-                listEl.innerHTML = html;
-            } catch (error) {
-                listEl.innerHTML = '<p>❌ 数据加载失败，请稍后重试</p>';
-            }
-        }
-
-        // 发送回复
-        async function sendReply(id) {
-            const reply = document.getElementById(`reply-${id}`).value.trim();
-            if (!reply) {
-                alert('请输入回复内容');
-                return;
-            }
-
-            try {
-                await fetch(`https://api.netlify.com/api/v1/submissions/${id}`, {
-                    method: 'PATCH',
-                    headers: {
-                        Authorization: `Bearer ${API_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ data: { reply } })
-                });
-                alert('✅ 回复发送成功');
-                loadData();
-            } catch (error) {
-                alert('❌ 回复发送失败，请重试');
-            }
-        }
-
-        // 退出登录
-        function logout() {
-            document.getElementById('adminContent').style.display = 'none';
-            document.getElementById('loginCard').style.display = 'block';
-            document.getElementById('loginForm').reset();
-        }
-    </script>
+function sendReply(i) {
+const list = getList();
+list[i].reply = document.getElementById(`reply${i}`).value;
+saveList(list);
+alert("回复已保存");
+loadList();
+}
+</script>
 </body>
 </html>
