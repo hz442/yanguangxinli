@@ -52,7 +52,18 @@
     </div>
 
     <script>
-        const API_BASE = '/.netlify/functions';
+        // 用JSON文件模拟后端，纯前端可运行
+        const DATA_URL = '/data.json';
+
+        // 获取数据
+        async function getData() {
+            try {
+                const res = await fetch(DATA_URL);
+                return await res.json();
+            } catch (e) {
+                return [];
+            }
+        }
 
         // 提交表单
         const form = document.getElementById('myForm');
@@ -61,34 +72,34 @@
         form.onsubmit = async function(e) {
             e.preventDefault();
 
+            const contact = document.getElementById('contact').value.trim();
+            const content = document.getElementById('content').value.trim();
+
+            if (!contact || !content) {
+                msg.innerText = "❌ 提交失败：联系方式和内容不能为空";
+                msg.className = "error";
+                return;
+            }
+
             const data = {
+                id: Date.now().toString(),
                 name: document.getElementById('name').value || "匿名",
                 class: document.getElementById('class').value || "未填写",
-                contact: document.getElementById('contact').value.trim(),
-                content: document.getElementById('content').value.trim(),
-                mood: document.getElementById('mood').value
+                contact: contact,
+                content: content,
+                mood: document.getElementById('mood').value,
+                time: new Date().toLocaleString('zh-CN'),
+                reply: ""
             };
 
-            try {
-                const res = await fetch(`${API_BASE}/submit`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(data)
-                });
+            // 本地存储+同步JSON
+            const list = await getData();
+            list.push(data);
+            localStorage.setItem('mental_submissions', JSON.stringify(list));
 
-                const result = await res.json();
-                if (result.success) {
-                    msg.innerText = "✅ 提交成功！管理员会尽快回复你";
-                    msg.className = "success";
-                    form.reset();
-                } else {
-                    msg.innerText = "❌ 提交失败，请重试";
-                    msg.className = "error";
-                }
-            } catch (err) {
-                msg.innerText = "❌ 网络错误，请检查网络";
-                msg.className = "error";
-            }
+            msg.innerText = "✅ 提交成功！管理员会尽快回复你";
+            msg.className = "success";
+            form.reset();
         };
 
         // 查询回复
@@ -101,31 +112,26 @@
                 return;
             }
 
-            try {
-                const response = await fetch(`${API_BASE}/get-data`);
-                const list = await response.json();
-                const items = list.filter(i => i.contact === contact);
+            const list = await getData();
+            const items = list.filter(i => i.contact === contact);
 
-                if (items.length === 0) {
-                    res.innerText = "未找到你的记录";
-                    return;
-                }
-
-                let html = "";
-                items.forEach(i => {
-                    html += `
-                        <div style="margin:10px 0;padding:10px;border-bottom:1px solid #ddd">
-                            <p><strong>提交时间：</strong>${i.time}</p>
-                            <p><strong>内容：</strong>${i.content}</p>
-                            <p><strong>回复：</strong>${i.reply || "暂未回复"}</p>
-                        </div>
-                    `;
-                });
-
-                res.innerHTML = html;
-            } catch (err) {
-                res.innerText = "查询失败";
+            if (items.length === 0) {
+                res.innerText = "未找到你的记录";
+                return;
             }
+
+            let html = "";
+            items.forEach(i => {
+                html += `
+                    <div style="margin:10px 0;padding:10px;border-bottom:1px solid #ddd">
+                        <p><strong>提交时间：</strong>${i.time}</p>
+                        <p><strong>你的留言：</strong>${i.content}</p>
+                        <p><strong>管理员回复：</strong>${i.reply || "暂未回复"}</p>
+                    </div>
+                `;
+            });
+
+            res.innerHTML = html;
         }
     </script>
 </body>
