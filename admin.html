@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>管理员后台 - 阳光心理</title>
+  <link rel="stylesheet" href="/style.css">
+  <style>
+    .login-box{max-width:400px;margin:50px auto;}
+    .item{padding:15px;border-bottom:1px solid #eee;}
+    .item h4{margin-bottom:5px;color:var(--main);}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div id="login" class="card login-box">
+      <h2 class="title">管理员登录</h2>
+      <div class="form-group">
+        <label>账号</label>
+        <input id="user" type="text" placeholder="管理员账号">
+      </div>
+      <div class="form-group">
+        <label>密码</label>
+        <input id="pwd" type="password" placeholder="管理员密码">
+      </div>
+      <div class="text-center">
+        <button onclick="login()" class="btn">登录</button>
+      </div>
+    </div>
+
+    <div id="adminPanel" style="display:none;">
+      <div class="card">
+        <h2 class="title">📊 提交信息列表</h2>
+        <div id="list"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let token = ''
+    
+    async function login(){
+      const user = document.getElementById('user').value
+      const pwd = document.getElementById('pwd').value
+      const res = await fetch('/api/login', {
+        method: 'POST',
+        body: JSON.stringify({user,pwd})
+      })
+      const r = await res.json()
+      if(r.success){
+        token = r.token
+        document.getElementById('login').style.display='none'
+        document.getElementById('adminPanel').style.display='block'
+        getList()
+      }else{
+        alert('账号或密码错误')
+      }
+    }
+
+    async function getList(){
+      const res = await fetch('/api/getlist', {
+        headers:{token}
+      })
+      const list = await res.json()
+      const dom = document.getElementById('list')
+      dom.innerHTML = ''
+      list.forEach(item => {
+        const div = document.createElement('div')
+        div.className='item'
+        div.innerHTML = `
+          <h4>${item.name || '匿名'} | ${item.class} | ${item.status}</h4>
+          <p>${item.content}</p>
+          <small>提交ID：${item.id}</small>
+          <div class="msg-area" id="msg${item.id}"></div>
+          <input class="msgInput" placeholder="回复消息" style="margin-top:10px;">
+          <button onclick="sendMsg('${item.id}')" class="btn btn-green" style="padding:8px 15px;margin-top:8px;">发送</button>
+        `
+        dom.appendChild(div)
+        loadMsg(item.id)
+      })
+    }
+
+    async function sendMsg(id){
+      const input = document.querySelector(`#msg${id} + input`)
+      const content = input.value.trim()
+      if(!content)return
+      await fetch('/api/message', {
+        method: 'POST',
+        headers:{token},
+        body: JSON.stringify({id,content,type:'admin'})
+      })
+      input.value=''
+      loadMsg(id)
+    }
+
+    async function loadMsg(id){
+      const res = await fetch(`/api/message?id=${id}`)
+      const msgs = await res.json()
+      const box = document.getElementById(`msg${id}`)
+      box.innerHTML = msgs.map(m=>`
+        <div class="message-box ${m.type=='admin'?'admin-msg':'user-msg'}">
+          ${m.type=='admin'?'[管理员]':'[学生]'}：${m.content}
+        </div>
+      `).join('')
+    }
+  </script>
+</body>
+</html>

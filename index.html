@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>阳光心理 - 学生心理信息收集</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <h2 class="title">☀️ 阳光心理信息收集</h2>
+      <p style="text-align:center; margin-bottom:20px;">你的心声，我们认真倾听</p>
+      <form id="submitForm">
+        <div class="form-group">
+          <label>姓名（可选匿名）</label>
+          <input type="text" name="name" placeholder="可填写匿名">
+        </div>
+        <div class="form-group">
+          <label>年级班级</label>
+          <input type="text" name="class" placeholder="例：高三1班" required>
+        </div>
+        <div class="form-group">
+          <label>心理状态</label>
+          <select name="status" required>
+            <option value="">请选择</option>
+            <option value="良好">良好</option>
+            <option value="一般">一般</option>
+            <option value="焦虑">焦虑</option>
+            <option value="压力大">压力较大</option>
+            <option value="低落">情绪低落</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>详细描述/心声</label>
+          <textarea name="content" required placeholder="请写下你的感受、困扰或想倾诉的话..."></textarea>
+        </div>
+        <div class="text-center">
+          <button type="submit" class="btn">提交信息</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('submitForm')
+    form.addEventListener('submit', async e => {
+      e.preventDefault()
+      const data = Object.fromEntries(new FormData(form))
+      const res = await fetch('/api/submit', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      })
+      const result = await res.json()
+      if(result.success){
+        alert('提交成功！你的专属ID：'+result.id+'\n请记住ID，用于后续交流')
+        form.reset()
+      }else{
+        alert('提交失败：'+result.msg)
+      }
+    })
+  </script>
+</body>
+</html>
